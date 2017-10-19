@@ -1,0 +1,32 @@
+//
+// Copyright (c) 2017 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
+// GPLv3, see LICENSE
+//
+// @author Fred Neumann <fred.neumann@fau.de>
+// @author Jesus Copado <jesus.copado@ili.fau.de>
+// @version $Id$
+//
+
+<!-- language file start -->
+cmd_insert#:#Insert Sage Cell
+config_title#:#SageCell Plugin Configuration
+config_sagemath_server_address#:#SageMath Server Address
+config_sagemath_server_address_info#:#Link to the SageMath Server Address
+config_force_evaluate_button#:#Force Evaluate Button
+config_force_evaluate_button_info#:#Forcing of an Evaluate Button depending on the Server Performance
+config_info_correct_saved#:#Configuration was properly Saved
+config_info_error_saving#:#There was an Error during Saving Process
+form_sage_cell_name#:#Name of the Sage Cell input
+form_code_language#:#Code Language
+form_code_language_info#:#Select the Code Language you use in this Sage Cell
+form_sage_cell_code_editor#:#Code
+form_code_editor_info#:#Write the Sage Cell code
+form_create_sage_cell#:#Create SageCell
+form_edit_sage_cell#:#Edit SageCell
+form_auto_eval_button#:#Activate Auto Evaluation
+form_auto_eval_button_info#:#Is set to yes, Sage Cells are automatically evaluated when page is loaded
+form_sage_cell_header_text#:#Header info
+form_sage_cell_header_text_info#:#What you write here will be shown above SaceCell
+form_sage_cell_footer_text#:#Footer text
+form_sage_cell_footer_text_info#:#What you write here will be shown below SaceCell
+sage_cell_evaluate#:#Evaluate
