@@ -92,7 +92,7 @@ class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 		if ($form->checkInput())
 		{
 			$existing_properties = $this->getProperties();
-			$properties = array('sage_cell_input' => $form->getInput('sage_cell_input'), 'sage_cell_language' => $form->getInput('sage_cell_language'), 'sage_cell_code' => $sage_cell_code, 'sage_cell_auto_eval' => $form->getInput('sage_cell_auto_eval'),'sage_cell_header_text' => $sage_cell_header,'sage_cell_footer_text' => $sage_cell_footer,);
+			$properties = array('sage_cell_input' => $form->getInput('sage_cell_input'), 'sage_cell_language' => $form->getInput('sage_cell_language'), 'sage_cell_code' => $sage_cell_code, 'sage_cell_auto_eval' => $form->getInput('sage_cell_auto_eval'), 'sage_cell_header_text' => $sage_cell_header, 'sage_cell_footer_text' => $sage_cell_footer,'sage_cell_show_code_editor' => $form->getInput('sage_cell_show_code_editor'),);
 
 			foreach ($existing_properties as $property_name => $value)
 			{
@@ -127,7 +127,7 @@ class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 		if ($form->checkInput())
 		{
 
-			$properties = array('sage_cell_input' => $form->getInput('sage_cell_input'), 'sage_cell_language' => $form->getInput('sage_cell_language'), 'sage_cell_code' => $sage_cell_code, 'sage_cell_auto_eval' => $form->getInput('sage_cell_auto_eval'),'sage_cell_header_text' => $sage_cell_header,'sage_cell_footer_text' => $sage_cell_footer,);
+			$properties = array('sage_cell_input' => $form->getInput('sage_cell_input'), 'sage_cell_language' => $form->getInput('sage_cell_language'), 'sage_cell_code' => $sage_cell_code, 'sage_cell_auto_eval' => $form->getInput('sage_cell_auto_eval'), 'sage_cell_header_text' => $sage_cell_header, 'sage_cell_footer_text' => $sage_cell_footer,'sage_cell_show_code_editor' => $form->getInput('sage_cell_show_code_editor'),);
 			if ($this->createElement($properties))
 			{
 				ilUtil::sendSuccess($lng->txt("msg_obj_modified"), TRUE);
@@ -179,12 +179,24 @@ class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 			//TODO Im not sure we should deactivate evalButton when autoevaluation is active because after modify the code its not possible to re evaluate
 			$content_template->setVariable('AUTOEVAL', 'true');
 			$content_template->setVariable('EVAL_BUTTON_TEXT', $this->txt("sage_cell_evaluate"));
-			$content_template->setVariable('HIDE', '"language", "permalink", "evalButton", "fullScreen", "sessionFiles", "done"');
+			if ((int)$a_properties['sage_cell_show_code_editor'])
+			{
+				$content_template->setVariable('HIDE', '"language", "permalink", "evalButton", "fullScreen", "sessionFiles", "done"');
+			} else
+			{
+				$content_template->setVariable('HIDE', '"language", "permalink", "evalButton", "fullScreen", "sessionFiles", "done", "editor"');
+			}
 		} else
 		{
 			$content_template->setVariable('AUTOEVAL', 'false');
 			$content_template->setVariable('EVAL_BUTTON_TEXT', $this->txt("sage_cell_evaluate"));
-			$content_template->setVariable('HIDE', '"language", "permalink", "fullScreen", "sessionFiles", "done"');
+			if ((int)$a_properties['sage_cell_show_code_editor'])
+			{
+				$content_template->setVariable('HIDE', '"language", "permalink", "fullScreen", "sessionFiles", "done"');
+			} else
+			{
+				$content_template->setVariable('HIDE', '"language", "permalink", "fullScreen", "sessionFiles", "done", "editor"');
+			}
 		}
 
 		//Include extra info text
@@ -225,6 +237,7 @@ class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 		$sage_cell_input->setMaxLength(40);
 		$sage_cell_input->setSize(40);
 		$sage_cell_input->setRequired(true);
+		$sage_cell_input->setInfo($this->txt("form_sage_cell_name_info"));
 		$sage_cell_input->setValue($prop['sage_cell_input']);
 		$form->addItem($sage_cell_input);
 
@@ -235,9 +248,6 @@ class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 		$sage_cell_code_language->setValue($prop['sage_cell_language']);
 		$form->addItem($sage_cell_code_language);
 
-		//sagecell code script
-		$this->createCodeEditorFormInput($form, 'form_sage_cell_code_editor', $prop['sage_cell_code']);
-
 		//Extra info textarea
 		$sage_cell_extra_info_textarea = new ilTextAreaInputGUI($this->txt('form_sage_cell_header_text'), 'sage_cell_header_text');
 		$sage_cell_extra_info_textarea->setInfo($this->txt("form_sage_cell_header_text_info"));
@@ -246,6 +256,9 @@ class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 		$sage_cell_extra_info_textarea->setValue($prop['sage_cell_header_text']);
 		$form->addItem($sage_cell_extra_info_textarea);
 
+		//sagecell code script
+		$this->createCodeEditorFormInput($form, 'form_sage_cell_code_editor', $prop['sage_cell_code']);
+
 		//Footer text textarea
 		$sage_cell_footer_textarea = new ilTextAreaInputGUI($this->txt('form_sage_cell_footer_text'), 'sage_cell_footer_text');
 		$sage_cell_footer_textarea->setInfo($this->txt("form_sage_cell_footer_text_info"));
@@ -253,6 +266,19 @@ class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 		$sage_cell_footer_textarea->setRteTagSet('extended');
 		$sage_cell_footer_textarea->setValue($prop['sage_cell_footer_text']);
 		$form->addItem($sage_cell_footer_textarea);
+
+		//Show code editor
+		$sage_cell_show_code_editor = new ilSelectInputGUI($this->txt("form_sage_cell_show_code_editor"), "sage_cell_show_code_editor");
+		$sage_cell_show_code_editor->setOptions(array('1' => $lng->txt('yes'), '0' => $lng->txt('no')));
+		$sage_cell_show_code_editor->setInfo($this->txt("form_sage_cell_show_code_editor_info"));
+		if ((int)$prop['sage_cell_show_code_editor'])
+		{
+			$sage_cell_show_code_editor->setValue('1');
+		} else
+		{
+			$sage_cell_show_code_editor->setValue('0');
+		}
+		$form->addItem($sage_cell_show_code_editor);
 
 		//Activate Auto Evaluation (Deactivate if evaluate button is forced in admin)
 		include_once './Customizing/global/plugins/Services/COPage/PageComponent/PCSageCell/classes/class.ilPCSageCellConfig.php';
