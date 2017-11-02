@@ -86,13 +86,19 @@ class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 
 		//Sage cell code, and textarea texts should be taken directly by post in order to avoid lose of code after < symbol.
 		$sage_cell_code = $_POST["form_sage_cell_code_editor"];
-		$sage_cell_header = $_POST["sage_cell_header_text"];
-		$sage_cell_footer = $_POST["sage_cell_footer_text"];
 
 		if ($form->checkInput())
 		{
 			$existing_properties = $this->getProperties();
-			$properties = array('sage_cell_input' => $form->getInput('sage_cell_input'), 'sage_cell_language' => $form->getInput('sage_cell_language'), 'sage_cell_code' => $sage_cell_code, 'sage_cell_auto_eval' => $form->getInput('sage_cell_auto_eval'), 'sage_cell_header_text' => $sage_cell_header, 'sage_cell_footer_text' => $sage_cell_footer,'sage_cell_show_code_editor' => $form->getInput('sage_cell_show_code_editor'),);
+			$properties = array(
+				'sage_cell_input' => $form->getInput('sage_cell_input'),
+				'sage_cell_language' => $form->getInput('sage_cell_language'),
+				'sage_cell_code' => $sage_cell_code,
+				'sage_cell_auto_eval' => $form->getInput('sage_cell_auto_eval'),
+				'sage_cell_header_text' => $form->getInput('sage_cell_header_text'),
+				'sage_cell_footer_text' => $form->getInput('sage_cell_footer_text'),
+				'sage_cell_show_code_editor' => $form->getInput('sage_cell_show_code_editor')
+			);
 
 			foreach ($existing_properties as $property_name => $value)
 			{
@@ -120,14 +126,19 @@ class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 
 		//Sage cell code, and textarea texts should be taken directly by post in order to avoid lose of code after < symbol.
 		$sage_cell_code = $_POST["form_sage_cell_code_editor"];
-		$sage_cell_header = $_POST["sage_cell_header_text"];
-		$sage_cell_footer = $_POST["sage_cell_footer_text"];
 
 		$form = $this->initForm(TRUE);
 		if ($form->checkInput())
 		{
-
-			$properties = array('sage_cell_input' => $form->getInput('sage_cell_input'), 'sage_cell_language' => $form->getInput('sage_cell_language'), 'sage_cell_code' => $sage_cell_code, 'sage_cell_auto_eval' => $form->getInput('sage_cell_auto_eval'), 'sage_cell_header_text' => $sage_cell_header, 'sage_cell_footer_text' => $sage_cell_footer,'sage_cell_show_code_editor' => $form->getInput('sage_cell_show_code_editor'),);
+			$properties = array(
+				'sage_cell_input' => $form->getInput('sage_cell_input'),
+				'sage_cell_language' => $form->getInput('sage_cell_language'),
+				'sage_cell_code' => $sage_cell_code,
+				'sage_cell_auto_eval' => $form->getInput('sage_cell_auto_eval'),
+				'sage_cell_header_text' => $form->getInput('sage_cell_header_text'),
+				'sage_cell_footer_text' => $form->getInput('sage_cell_footer_text'),
+				'sage_cell_show_code_editor' => $form->getInput('sage_cell_show_code_editor')
+			);
 			if ($this->createElement($properties))
 			{
 				ilUtil::sendSuccess($lng->txt("msg_obj_modified"), TRUE);
@@ -158,6 +169,12 @@ class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 	public function getElementHTML($a_mode, array $a_properties, $a_plugin_version)
 	{
 		global $tpl;
+
+		if ($a_mode == "edit")
+		{
+			return $this->getPageEditorHTML($a_properties);
+		}
+
 		include_once './Customizing/global/plugins/Services/COPage/PageComponent/PCSageCell/classes/class.ilPCSageCellConfig.php';
 		$config = new ilPCSageCellConfig();
 
@@ -216,6 +233,18 @@ class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 
 		return $content_template->get();
 	}
+
+
+	public function getPageEditorHTML($a_properties)
+	{
+		/** @var ilTemplate $content_template */
+		$content_template = $this->getPlugin()->getTemplate("tpl.page_editor.html");
+		$content_template->setVariable('SAGE_TEXT', html_entity_decode($a_properties["sage_cell_header_text"]));
+		$content_template->setVariable('CODE', str_replace('&#13;', "\r", $a_properties['sage_cell_code']));
+		$content_template->setVariable('FOOTER_TEXT', html_entity_decode($a_properties["sage_cell_footer_text"]));
+		return $content_template->get();
+	}
+
 
 	/**
 	 * This function return the insert/edit form of a SageCell page component
