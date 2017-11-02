@@ -8,3 +8,28 @@
 //
 
 <!-- language file start -->
+cmd_insert#:#SageMath-Zelle einfügen
+config_title#:#SageCell Plugin-Konfiguration
+config_sagemath_server_address#:#SageCell Javascript-URL
+config_sagemath_server_address_info#:#URL der Javascript-Datei, die auf der Seite eingebunden wird, z.B. "https://sagecell.sagemath.org/static/embedded_sagecell.js". Diese Datei bestimmt auch die URL des verwendeten SageMath-Servers..
+config_force_evaluate_button#:#Auswertungs-Knopf erzwingen
+config_force_evaluate_button_info#:#Setzen Sie diese Einstellung auf 'Ja', wenn die automatische Auswertung der SageMath-Zellen eine zu hohe Last auf dem SageMath-Server verursacht.
+config_info_correct_saved#:#Die Konfiguration wurde gespeichert.
+config_info_error_saving#:#Die Konfiguration konnte nicht gespeichert werden.
+form_sage_cell_name#:#Name der Zelle
+form_sage_cell_name_info#:#Dieser Name wird nur zur internen Identifikation verwendet und nicht angezeigt
+form_code_language#:#Code-Sprache
+form_code_language_info#:#Sprache des Codes, der an den SageMath-Server zur Auswertung gesendet wird
+form_sage_cell_code_editor#:#Code
+form_code_editor_info#:#Vorderfinierter Code der im Editor auf der Seite angezeigt oder zur automatischen Auswertung verwendet wird
+form_create_sage_cell#:#SageMath-Zelle erzeugen
+form_edit_sage_cell#:#SageMath-Zelle bearbeiten
+form_auto_eval_button#:#Automatische Auswertung
+form_auto_eval_button_info#:#Wählen Sie "Ja", wenn der Code beim Anzeigen der Seite automatisch ausgewertet werden soll.
+form_sage_cell_header_text#:#Kopf-Text
+form_sage_cell_header_text_info#:#Dieser Text wird über der Zelle angezeigt
+form_sage_cell_footer_text#:#Fuß-Text
+form_sage_cell_footer_text_info#:#Dieser Text wird unter der Zelle angezeigt
+form_sage_cell_show_code_editor#:#Code-Editor anzeigen
+form_sage_cell_show_code_editor_info#:#Wählen Sie "Ja", um den Lernern die Bearbeitung des Codes zu erlauben
+sage_cell_evaluate#:#Auswerten
