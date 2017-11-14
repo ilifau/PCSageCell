@@ -219,8 +219,8 @@ class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 		//Include extra info text
 		$content_template->setVariable('SAGE_TEXT', $a_properties["sage_cell_header_text"]);
 
-		//We have to replace carriage return ascii &#13 with \r in order to get a proper display of the code
-		$content_template->setVariable('CODE', str_replace('&#13;', "\r", $a_properties['sage_cell_code']));
+		// Code
+		$content_template->setVariable('CODE', $this->prepareCodePageOutput($a_properties['sage_cell_code']));
 
 		//Include extra info text
 		$content_template->setVariable('FOOTER_TEXT', $a_properties["sage_cell_footer_text"]);
@@ -240,7 +240,7 @@ class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 		/** @var ilTemplate $content_template */
 		$content_template = $this->getPlugin()->getTemplate("tpl.page_editor.html");
 		$content_template->setVariable('SAGE_TEXT', html_entity_decode($a_properties["sage_cell_header_text"]));
-		$content_template->setVariable('CODE', str_replace('&#13;', "\r", $a_properties['sage_cell_code']));
+		$content_template->setVariable('CODE', $this->prepareCodePageOutput($a_properties['sage_cell_code']));
 		$content_template->setVariable('FOOTER_TEXT', html_entity_decode($a_properties["sage_cell_footer_text"]));
 		return $content_template->get();
 	}
@@ -310,7 +310,7 @@ class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 		$form->addItem($sage_cell_show_code_editor);
 
 		//Activate Auto Evaluation (Deactivate if evaluate button is forced in admin)
-		include_once './Customizing/global/plugins/Services/COPage/PageComponent/PCSageCell/classes/class.ilPCSageCellConfig.php';
+		$this->plugin->includeClass('class.ilPCSageCellConfig.php');
 		$config = new ilPCSageCellConfig();
 		$sage_cell_auto_eval = new ilSelectInputGUI($this->txt("form_auto_eval_button"), "sage_cell_auto_eval");
 		$sage_cell_auto_eval->setOptions(array('1' => $lng->txt('yes'), '0' => $lng->txt('no')));
@@ -379,7 +379,7 @@ class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 		$item = new ilCustomInputGUI($this->plugin->txt($name), $name);
 		$item->setInfo($this->txt('form_code_editor_info'));
 		$tpl = $this->plugin->getTemplate('tpl.code_editor.html');
-		$tpl->setVariable("CONTENT", $value);
+		$tpl->setVariable("CONTENT", $this->prepareCodeFormOutput($value));
 		$tpl->setVariable("NAME", $name);
 		$item->setHTML($tpl->get());
 		$form->addItem($item);
@@ -429,5 +429,31 @@ class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 	protected function txt($a_var)
 	{
 		return $this->getPlugin()->txt($a_var);
+	}
+
+	/**
+	 * Prepare the code for being shown in the properties form
+	 * @param string $a_code
+	 * @return string
+	 */
+	protected function prepareCodeFormOutput($a_code)
+	{
+		$a_code = str_replace('{', '&#123;', $a_code);
+		$a_code = str_replace('}', '&#125;', $a_code);
+		return $a_code;
+	}
+
+	/**
+	 * Prepare the code for being shown on the page presentation
+	 * @param string $a_code
+	 * @return string
+	 */
+	protected function prepareCodePageOutput($a_code)
+	{
+		//We have to replace carriage return ascii &#13; with \r in order to get a proper display of the code
+		$a_code = str_replace('&#13;', "\r", $a_code);
+		$a_code = str_replace('{', '&#123;', $a_code);
+		$a_code = str_replace('}', '&#125;', $a_code);
+		return $a_code;
 	}
 }
