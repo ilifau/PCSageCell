@@ -53,7 +53,7 @@ class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 				// perform valid commands
 				$cmd = $ilCtrl->getCmd();
 				//TODO
-				if (in_array($cmd, array("create", "edit", "insert", "update")))
+				if (in_array($cmd, array("create", "edit", "insert", "update", "preview")))
 				{
 					$this->$cmd();
 				}
@@ -86,13 +86,11 @@ class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 
 		//Sage cell code, and textarea texts should be taken directly by post in order to avoid lose of code after < symbol.
 		$sage_cell_code = $_POST["form_sage_cell_code_editor"];
-		$sage_cell_header = $_POST["sage_cell_header_text"];
-		$sage_cell_footer = $_POST["sage_cell_footer_text"];
 
 		if ($form->checkInput())
 		{
 			$existing_properties = $this->getProperties();
-			$properties = array('sage_cell_input' => $form->getInput('sage_cell_input'), 'sage_cell_language' => $form->getInput('sage_cell_language'), 'sage_cell_code' => $sage_cell_code, 'sage_cell_auto_eval' => $form->getInput('sage_cell_auto_eval'), 'sage_cell_header_text' => $sage_cell_header, 'sage_cell_footer_text' => $sage_cell_footer,'sage_cell_show_code_editor' => $form->getInput('sage_cell_show_code_editor'),);
+			$properties = array('sage_cell_input' => $form->getInput('sage_cell_input'), 'sage_cell_language' => $form->getInput('sage_cell_language'), 'sage_cell_code' => $sage_cell_code, 'sage_cell_auto_eval' => $form->getInput('sage_cell_auto_eval'), 'sage_cell_header_text' => $form->getInput('sage_cell_header_text'), 'sage_cell_footer_text' => $form->getInput('sage_cell_footer_text'), 'sage_cell_show_code_editor' => $form->getInput('sage_cell_show_code_editor'));
 
 			foreach ($existing_properties as $property_name => $value)
 			{
@@ -104,7 +102,7 @@ class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 			if ($this->updateElement($existing_properties))
 			{
 				ilUtil::sendSuccess($lng->txt("msg_obj_modified"), true);
-				$this->returnToParent();
+				$this->edit();
 			}
 		}
 		$form->setValuesByPost();
@@ -117,17 +115,15 @@ class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 	public function create()
 	{
 		global $tpl, $lng, $ilCtrl;
+		$this->setTabs("edit");
 
 		//Sage cell code, and textarea texts should be taken directly by post in order to avoid lose of code after < symbol.
 		$sage_cell_code = $_POST["form_sage_cell_code_editor"];
-		$sage_cell_header = $_POST["sage_cell_header_text"];
-		$sage_cell_footer = $_POST["sage_cell_footer_text"];
 
 		$form = $this->initForm(TRUE);
 		if ($form->checkInput())
 		{
-
-			$properties = array('sage_cell_input' => $form->getInput('sage_cell_input'), 'sage_cell_language' => $form->getInput('sage_cell_language'), 'sage_cell_code' => $sage_cell_code, 'sage_cell_auto_eval' => $form->getInput('sage_cell_auto_eval'), 'sage_cell_header_text' => $sage_cell_header, 'sage_cell_footer_text' => $sage_cell_footer,'sage_cell_show_code_editor' => $form->getInput('sage_cell_show_code_editor'),);
+			$properties = array('sage_cell_input' => $form->getInput('sage_cell_input'), 'sage_cell_language' => $form->getInput('sage_cell_language'), 'sage_cell_code' => $sage_cell_code, 'sage_cell_auto_eval' => $form->getInput('sage_cell_auto_eval'), 'sage_cell_header_text' => $form->getInput('sage_cell_header_text'), 'sage_cell_footer_text' => $form->getInput('sage_cell_footer_text'), 'sage_cell_show_code_editor' => $form->getInput('sage_cell_show_code_editor'));
 			if ($this->createElement($properties))
 			{
 				ilUtil::sendSuccess($lng->txt("msg_obj_modified"), TRUE);
@@ -144,9 +140,17 @@ class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 	public function edit()
 	{
 		global $tpl;
+		$this->setTabs("edit");
 
 		$form = $this->initForm(FALSE);
 		$tpl->setContent($form->getHTML());
+	}
+
+	public function preview(){
+		global $tpl;
+		$this->setTabs("preview");
+
+		$tpl->setContent($this->getElementHTML("preview", $this->getProperties(), $this->getPlugin()));
 	}
 
 	/**
@@ -158,6 +162,12 @@ class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 	public function getElementHTML($a_mode, array $a_properties, $a_plugin_version)
 	{
 		global $tpl;
+
+		if ($a_mode == "edit")
+		{
+			return $this->getPageEditorHTML($a_properties);
+		}
+
 		include_once './Customizing/global/plugins/Services/COPage/PageComponent/PCSageCell/classes/class.ilPCSageCellConfig.php';
 		$config = new ilPCSageCellConfig();
 
@@ -167,7 +177,6 @@ class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 		//Fill content template
 		$content_template = $this->getPlugin()->getTemplate("tpl.content.html");
 		$content_template->setVariable('ID', $sage_cell_id);
-		$content_template->setVariable('TEMPLATE', 'sagecell.templates.minimal');
 		$content_template->setVariable('INPUT_LOCATION', 'div.compute');
 		$content_template->setVariable('OUTPUT_LOCATION', 'div.output');
 		$content_template->setVariable('CODE_LOCATION', '#codeinput');
@@ -176,37 +185,53 @@ class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 		//Check evaluation button is not forced and autoevaluation is activated
 		if ($a_properties['sage_cell_auto_eval'] AND !$config->getForceEvaluateButton())
 		{
-			//TODO Im not sure we should deactivate evalButton when autoevaluation is active because after modify the code its not possible to re evaluate
 			$content_template->setVariable('AUTOEVAL', 'true');
-			$content_template->setVariable('EVAL_BUTTON_TEXT', $this->txt("sage_cell_evaluate"));
-			if ((int)$a_properties['sage_cell_show_code_editor'])
-			{
-				$content_template->setVariable('HIDE', '"language", "permalink", "evalButton", "fullScreen", "sessionFiles", "done"');
-			} else
-			{
-				$content_template->setVariable('HIDE', '"language", "permalink", "evalButton", "fullScreen", "sessionFiles", "done", "editor"');
-			}
 		} else
 		{
 			$content_template->setVariable('AUTOEVAL', 'false');
-			$content_template->setVariable('EVAL_BUTTON_TEXT', $this->txt("sage_cell_evaluate"));
-			if ((int)$a_properties['sage_cell_show_code_editor'])
-			{
+		}
+
+		$content_template->setVariable('EVAL_BUTTON_TEXT', $this->txt("sage_cell_evaluate"));
+
+		switch ($a_properties['sage_cell_show_code_editor'])
+		{
+			case 'edit':
+				$content_template->setVariable('TEMPLATE', 'sagecell.templates.minimal');
+				$content_template->setVariable('EDITOR_TYPE', 'codemirror');
 				$content_template->setVariable('HIDE', '"language", "permalink", "fullScreen", "sessionFiles", "done"');
-			} else
-			{
+				break;
+			case 'show':
+				$content_template->setVariable('TEMPLATE', 'sagecell.templates.restricted');
+				$content_template->setVariable('EDITOR_TYPE', 'codemirror-readonly');
+				$content_template->setVariable('HIDE', '"language", "permalink", "fullScreen", "sessionFiles", "done"');
+				break;
+			case 'hide':
+				$content_template->setVariable('TEMPLATE', 'sagecell.templates.restricted');
+				$content_template->setVariable('EDITOR_TYPE', 'codemirror');
 				$content_template->setVariable('HIDE', '"language", "permalink", "fullScreen", "sessionFiles", "done", "editor"');
-			}
+				break;
+			default:
+				$content_template->setVariable('TEMPLATE', 'sagecell.templates.restricted');
+				$content_template->setVariable('HIDE', '"language", "permalink", "fullScreen", "sessionFiles", "done", "editor"');
+				break;
 		}
 
 		//Include extra info text
 		$content_template->setVariable('SAGE_TEXT', $a_properties["sage_cell_header_text"]);
 
-		//We have to replace carriage return ascii &#13 with \r in order to get a proper display of the code
-		$content_template->setVariable('CODE', str_replace('&#13;', "\r", $a_properties['sage_cell_code']));
+		// Code
+		$content_template->setVariable('CODE', $this->prepareCodePageOutput($a_properties['sage_cell_code']));
 
 		//Include extra info text
 		$content_template->setVariable('FOOTER_TEXT', $a_properties["sage_cell_footer_text"]);
+
+		if ($a_mode == "preview")
+		{
+			ilUtil::sendInfo($this->txt("info_debug_mode"));
+			$content_template->setVariable('DEBUG_MODE', ',mode: "debug"');
+		}else{
+			$content_template->setVariable('DEBUG_MODE', '');
+		}
 
 		//Add SageCell css files to page
 		$tpl->addCss(self::URL_PATH . 'templates/css/sagecell_embed.css' . self::URL_SUFFIX);
@@ -216,6 +241,19 @@ class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 
 		return $content_template->get();
 	}
+
+
+	public function getPageEditorHTML($a_properties)
+	{
+		/** @var ilTemplate $content_template */
+		$content_template = $this->getPlugin()->getTemplate("tpl.page_editor.html");
+		$content_template->setVariable('SAGE_TEXT', html_entity_decode($a_properties["sage_cell_header_text"]));
+		$content_template->setVariable('CODE', $this->prepareCodePageOutput($a_properties['sage_cell_code']));
+		$content_template->setVariable('FOOTER_TEXT', html_entity_decode($a_properties["sage_cell_footer_text"]));
+
+		return $content_template->get();
+	}
+
 
 	/**
 	 * This function return the insert/edit form of a SageCell page component
@@ -268,20 +306,19 @@ class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 		$form->addItem($sage_cell_footer_textarea);
 
 		//Show code editor
-		$sage_cell_show_code_editor = new ilSelectInputGUI($this->txt("form_sage_cell_show_code_editor"), "sage_cell_show_code_editor");
-		$sage_cell_show_code_editor->setOptions(array('1' => $lng->txt('yes'), '0' => $lng->txt('no')));
-		$sage_cell_show_code_editor->setInfo($this->txt("form_sage_cell_show_code_editor_info"));
-		if ((int)$prop['sage_cell_show_code_editor'])
-		{
-			$sage_cell_show_code_editor->setValue('1');
-		} else
-		{
-			$sage_cell_show_code_editor->setValue('0');
-		}
+		$sage_cell_show_code_editor = new ilRadioGroupInputGUI($this->txt("form_sage_cell_show_code_editor"), "sage_cell_show_code_editor");
+		$option_edit = new ilRadioOption($this->txt("form_sage_cell_show_code_edit"), 'edit', $this->txt("form_sage_cell_show_code_edit_info"));
+		$sage_cell_show_code_editor->addOption($option_edit);
+		$option_show = new ilRadioOption($this->txt("form_sage_cell_show_code_readonly"), 'show', $this->txt("form_sage_cell_show_code_readonly_info"));
+		$sage_cell_show_code_editor->addOption($option_show);
+		$option_hide = new ilRadioOption($this->txt("form_sage_cell_show_code_hide"), 'hide', $this->txt("form_sage_cell_show_code_hide_info"));
+		$sage_cell_show_code_editor->addOption($option_hide);
+		$sage_cell_show_code_editor->setValue($prop['sage_cell_show_code_editor']);
+
 		$form->addItem($sage_cell_show_code_editor);
 
 		//Activate Auto Evaluation (Deactivate if evaluate button is forced in admin)
-		include_once './Customizing/global/plugins/Services/COPage/PageComponent/PCSageCell/classes/class.ilPCSageCellConfig.php';
+		$this->plugin->includeClass('class.ilPCSageCellConfig.php');
 		$config = new ilPCSageCellConfig();
 		$sage_cell_auto_eval = new ilSelectInputGUI($this->txt("form_auto_eval_button"), "sage_cell_auto_eval");
 		$sage_cell_auto_eval->setOptions(array('1' => $lng->txt('yes'), '0' => $lng->txt('no')));
@@ -350,7 +387,7 @@ class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 		$item = new ilCustomInputGUI($this->plugin->txt($name), $name);
 		$item->setInfo($this->txt('form_code_editor_info'));
 		$tpl = $this->plugin->getTemplate('tpl.code_editor.html');
-		$tpl->setVariable("CONTENT", $value);
+		$tpl->setVariable("CONTENT", $this->prepareCodeFormOutput($value));
 		$tpl->setVariable("NAME", $name);
 		$item->setHTML($tpl->get());
 		$form->addItem($item);
@@ -393,6 +430,23 @@ class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 	}
 
 	/**
+	 * Set tabs
+	 *
+	 * @param
+	 * @return
+	 */
+	public function setTabs($a_active)
+	{
+		global $ilTabs, $ilCtrl, $lng;
+
+		$ilTabs->addTab("edit", $lng->txt("edit"), $ilCtrl->getLinkTarget($this, "edit"));
+
+		$ilTabs->addTab("preview", $lng->txt("preview"), $ilCtrl->getLinkTarget($this, "preview"));
+
+		$ilTabs->activateTab($a_active);
+	}
+
+	/**
 	 * Get a plugin text
 	 * @param $a_var
 	 * @return mixed
@@ -400,5 +454,33 @@ class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 	protected function txt($a_var)
 	{
 		return $this->getPlugin()->txt($a_var);
+	}
+
+	/**
+	 * Prepare the code for being shown in the properties form
+	 * @param string $a_code
+	 * @return string
+	 */
+	protected function prepareCodeFormOutput($a_code)
+	{
+		$a_code = str_replace('{', '&#123;', $a_code);
+		$a_code = str_replace('}', '&#125;', $a_code);
+
+		return $a_code;
+	}
+
+	/**
+	 * Prepare the code for being shown on the page presentation
+	 * @param string $a_code
+	 * @return string
+	 */
+	protected function prepareCodePageOutput($a_code)
+	{
+		//We have to replace carriage return ascii &#13; with \r in order to get a proper display of the code
+		$a_code = str_replace('&#13;', "\r", $a_code);
+		$a_code = str_replace('{', '&#123;', $a_code);
+		$a_code = str_replace('}', '&#125;', $a_code);
+
+		return $a_code;
 	}
 }

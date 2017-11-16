@@ -1,43 +1,38 @@
-<html>
-<head>
-    <script>
-		$(function () {
-			// Make the div with id '{ID}' a Sage cell
-			sagecell.makeSagecell({
-				inputLocation: '#{ID}',
-				template: {TEMPLATE},
-				evalButtonText: 'Activate'
-			});
-			// Make *any* div with class 'compute' a Sage cell
-			sagecell.makeSagecell({
-				inputLocation: '{INPUT_LOCATION}_{ID}',
-				outputLocation: '{OUTPUT_LOCATION}_{ID}',
-				evalButtonText: '{EVAL_BUTTON_TEXT}',
-				codeLocation: '{CODE_LOCATION}_{ID}',
-				hide: [{HIDE}],
-				languages: ["{LANGUAGES}"],
-				autoeval: {AUTOEVAL}
-			});
-		});
-    </script>
-</head>
-<body>
-<div style="float: right;">
-</div>
-<div class="sagetext_{ID}" style="width:800;">
+<script>
+    $(function () {
+        // Make the div with id '{ID}' a Sage cell
+        sagecell.makeSagecell({
+            inputLocation: '#{ID}',
+            template: {TEMPLATE},
+            evalButtonText: 'Activate'
+        });
+        // Make *any* div with class 'compute' a Sage cell
+        sagecell.makeSagecell({
+            inputLocation: '{INPUT_LOCATION}_{ID}',
+            outputLocation: '{OUTPUT_LOCATION}_{ID}',
+            evalButtonText: '{EVAL_BUTTON_TEXT}',
+            codeLocation: '{CODE_LOCATION}_{ID}',
+            hide: [{HIDE}],
+            languages: ["{LANGUAGES}"],
+            autoeval: {AUTOEVAL},
+            editor: "{EDITOR_TYPE}"
+        {DEBUG_MODE}
+        });
+    });
+</script>
+<div class="sagetext_{ID}">
     {SAGE_TEXT}
 </div>
-<div class="compute_{ID}" style="width:800;">
+<div readonly="" class="compute_{ID}">
     <script type="text/x-sage">
     </script>
 </div>
 
 <script type="text/x-sage" id="codeinput_{ID}">{CODE}</script>
 
-<div class="output_{ID}" style="width:800;">
+<div class="output_{ID}">
 </div>
 
-<div class="footer_{ID}" style="width:800;">
+<div class="footer_{ID}">
     {FOOTER_TEXT}
 </div>
-</body>

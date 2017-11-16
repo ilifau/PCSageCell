@@ -10,26 +10,33 @@
 <!-- language file start -->
 cmd_insert#:#Insert Sage Cell
 config_title#:#SageCell Plugin Configuration
-config_sagemath_server_address#:#SageMath Server Address
-config_sagemath_server_address_info#:#Link to the SageMath Server Address
+config_sagemath_server_address#:#Sage Cell Javascript URL
+config_sagemath_server_address_info#:#URL of the Javascript file that has to be embedded on the page, e.g. 'https://sagecell.sagemath.org/static/embedded_sagecell.js'. This script also determines the URL of the called SageMath server.
 config_force_evaluate_button#:#Force Evaluate Button
-config_force_evaluate_button_info#:#Forcing of an Evaluate Button depending on the Server Performance
-config_info_correct_saved#:#Configuration was properly Saved
-config_info_error_saving#:#There was an Error during Saving Process
-form_sage_cell_name#:#Name of the Sage Cell input
-form_sage_cell_name_info#:#This Name is not Shown in the Student View and its Unique Purpose is to Identify the SageCell Component.
+config_force_evaluate_button_info#:#Set this to 'Yes' if the auto evaluation of sage cells causes too heavy load on the sage server.
+config_info_correct_saved#:#The configuration is saved.
+config_info_error_saving#:#The configuration can't be saved.
+form_sage_cell_name#:#Sage Cell Name
+form_sage_cell_name_info#:#This name is used for internal identification and not shown on the page.
 form_code_language#:#Code Language
-form_code_language_info#:#Select the Code Language you use in this Sage Cell
+form_code_language_info#:#Select the code language that is used in the sage cell.
 form_sage_cell_code_editor#:#Code
-form_code_editor_info#:#Write the Sage Cell code
-form_create_sage_cell#:#Create SageCell
-form_edit_sage_cell#:#Edit SageCell
-form_auto_eval_button#:#Activate Auto Evaluation
-form_auto_eval_button_info#:#If you Selectc Yes, Sage Cells are automatically evaluated when page is loaded
-form_sage_cell_header_text#:#Header info
-form_sage_cell_header_text_info#:#What you write here will be shown above SaceCell
-form_sage_cell_footer_text#:#Footer text
-form_sage_cell_footer_text_info#:#What you write here will be shown below SaceCell
+form_code_editor_info#:#Pre-defined code that will be shown in the code editor or used for an auto evaluation
+form_create_sage_cell#:#Create Sage Cell
+form_edit_sage_cell#:#Edit Sage Cell
+form_auto_eval_button#:#Auto Evaluation
+form_auto_eval_button_info#:#Select 'Yes' to automatically evaluate the code when the page is shown.
+form_sage_cell_header_text#:#Header Info
+form_sage_cell_header_text_info#:#This text is shown above the sage cell
+form_sage_cell_footer_text#:#Footer Text
+form_sage_cell_footer_text_info#:#This text is shown below the sage cell
 form_sage_cell_show_code_editor#:#Show Code Editor
-form_sage_cell_show_code_editor_info#:#If you Select Yes, the Code Editor will be shown to the Student
+form_sage_cell_show_code_editor_info#:#Select 'Yes' to allow students to modify the code
 sage_cell_evaluate#:#Evaluate
+form_sage_cell_show_code_edit#:#Editing Mode
+form_sage_cell_show_code_readonly#:#Read-Only Mode
+form_sage_cell_show_code_hide#:#Hidden Mode
+form_sage_cell_show_code_edit_info#:#Show the Sage Code to the Student and Allow editing of the Sage Code
+form_sage_cell_show_code_readonly_info#:#Show the Sage Code to the Student but Not Allow editing of the Sage Code
+form_sage_cell_show_code_hide_info#:#Do not show the Sage Code to the Student
+info_debug_mode#:#Notice you are currently in Debug Mode, so, Options regarding Showing the Sage Code are Overwritten by the Debug Mode.
