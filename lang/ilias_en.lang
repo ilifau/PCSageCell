@@ -33,3 +33,10 @@ form_sage_cell_footer_text_info#:#This text is shown below the sage cell
 form_sage_cell_show_code_editor#:#Show Code Editor
 form_sage_cell_show_code_editor_info#:#Select 'Yes' to allow students to modify the code
 sage_cell_evaluate#:#Evaluate
+form_sage_cell_show_code_edit#:#Editing Mode
+form_sage_cell_show_code_readonly#:#Read-Only Mode
+form_sage_cell_show_code_hide#:#Hidden Mode
+form_sage_cell_show_code_edit_info#:#Show the Sage Code to the Student and Allow editing of the Sage Code
+form_sage_cell_show_code_readonly_info#:#Show the Sage Code to the Student but Not Allow editing of the Sage Code
+form_sage_cell_show_code_hide_info#:#Do not show the Sage Code to the Student
+info_debug_mode#:#Notice you are currently in Debug Mode, so, Options regarding Showing the Sage Code are Overwritten by the Debug Mode.

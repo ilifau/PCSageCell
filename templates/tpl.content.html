@@ -14,14 +14,16 @@
             codeLocation: '{CODE_LOCATION}_{ID}',
             hide: [{HIDE}],
             languages: ["{LANGUAGES}"],
-            autoeval: {AUTOEVAL}
+            autoeval: {AUTOEVAL},
+            editor: "{EDITOR_TYPE}"
+        {DEBUG_MODE}
         });
     });
 </script>
 <div class="sagetext_{ID}">
     {SAGE_TEXT}
 </div>
-<div class="compute_{ID}">
+<div readonly="" class="compute_{ID}">
     <script type="text/x-sage">
     </script>
 </div>
