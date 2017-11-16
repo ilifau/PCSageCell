@@ -21,3 +21,4 @@ Version History
 
 0.9.0 Initial Commit
 0.9.1 Add show/hide code button in editing form, and some other minor changes in that form
+0.9.2 Add preview tab on edit page and readonly code option
