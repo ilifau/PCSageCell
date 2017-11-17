@@ -31,7 +31,6 @@ form_sage_cell_header_text_info#:#This text is shown above the sage cell
 form_sage_cell_footer_text#:#Footer Text
 form_sage_cell_footer_text_info#:#This text is shown below the sage cell
 form_sage_cell_show_code_editor#:#Show Code Editor
-form_sage_cell_show_code_editor_info#:#Select 'Yes' to allow students to modify the code
 sage_cell_evaluate#:#Evaluate
 form_sage_cell_show_code_edit#:#Editing Mode
 form_sage_cell_show_code_readonly#:#Read-Only Mode

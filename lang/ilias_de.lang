@@ -31,5 +31,11 @@ form_sage_cell_header_text_info#:#Dieser Text wird über der Zelle angezeigt
 form_sage_cell_footer_text#:#Fuß-Text
 form_sage_cell_footer_text_info#:#Dieser Text wird unter der Zelle angezeigt
 form_sage_cell_show_code_editor#:#Code-Editor anzeigen
-form_sage_cell_show_code_editor_info#:#Wählen Sie "Ja", um den Lernern die Bearbeitung des Codes zu erlauben
 sage_cell_evaluate#:#Auswerten
+form_sage_cell_show_code_edit#:#Bearbeitbar
+form_sage_cell_show_code_readonly#:#Nur lesen
+form_sage_cell_show_code_hide#:#Verborgen
+form_sage_cell_show_code_edit_info#:#Bearbeitung des Sage-Codes auf der Seite ermöglichen
+form_sage_cell_show_code_readonly_info#:#Sage-Code auf der Seite anzeigen, aber nicht bearbeiten
+form_sage_cell_show_code_hide_info#:#Den Sage-Code auf der Seite verberbgen
+info_debug_mode#:#Debug-Modus in der Vorschau: die Optionen zur Anzeige des Sage-Codes werden ignoriert!
