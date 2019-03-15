@@ -4,8 +4,6 @@
  * GPLv3, see docs/LICENSE
  */
 
-include_once("./Services/COPage/classes/class.ilPageComponentPluginGUI.php");
-
 /**
  * Page Component Sage Cell  plugin GUI
  *
@@ -19,23 +17,6 @@ include_once("./Services/COPage/classes/class.ilPageComponentPluginGUI.php");
  */
 class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 {
-
-	/**
-	 * @const    string    URL base path for including special javascript and css files
-	 */
-	const URL_PATH = "./Customizing/global/plugins/Services/COPage/PageComponent/PCSageCell/";
-
-	/**
-	 * @const    string    URL suffix to prevent caching of css files (increase with every change)
-	 *                    Note: this does not yet work with $tpl->addJavascript()
-	 */
-	const URL_SUFFIX = "?css_version=1.5.9";
-
-	/**
-	 * @var
-	 */
-	private $value;
-
 
 	/**
 	 * Execute command
@@ -52,7 +33,6 @@ class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 			default:
 				// perform valid commands
 				$cmd = $ilCtrl->getCmd();
-				//TODO
 				if (in_array($cmd, array("create", "edit", "insert", "update", "preview")))
 				{
 					$this->$cmd();
@@ -146,6 +126,9 @@ class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 		$tpl->setContent($form->getHTML());
 	}
 
+	/**
+	 * preview
+	 */
 	public function preview(){
 		global $tpl;
 		$this->setTabs("preview");
@@ -161,97 +144,63 @@ class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 	 */
 	public function getElementHTML($a_mode, array $a_properties, $a_plugin_version)
 	{
-		global $tpl;
-
 		if ($a_mode == "edit")
 		{
 			return $this->getPageEditorHTML($a_properties);
 		}
-
-		include_once './Customizing/global/plugins/Services/COPage/PageComponent/PCSageCell/classes/class.ilPCSageCellConfig.php';
-		$config = new ilPCSageCellConfig();
-
-		//Get random ID for the current SageCell
-		$sage_cell_id = rand(0, 9999999);
-
-		//Fill content template
-		$content_template = $this->getPlugin()->getTemplate("tpl.content.html");
-		$content_template->setVariable('ID', $sage_cell_id);
-		$content_template->setVariable('INPUT_LOCATION', 'div.compute');
-		$content_template->setVariable('OUTPUT_LOCATION', 'div.output');
-		$content_template->setVariable('CODE_LOCATION', '#codeinput');
-		$content_template->setVariable('LANGUAGES', $a_properties["sage_cell_language"]);
-
-		//Check evaluation button is not forced and autoevaluation is activated
-		if ($a_properties['sage_cell_auto_eval'] AND !$config->getForceEvaluateButton())
+		else
 		{
-			$content_template->setVariable('AUTOEVAL', 'true');
-		} else
-		{
-			$content_template->setVariable('AUTOEVAL', 'false');
+			return $this->getPageViewHTML($a_mode, $a_properties);
+		}
 		}
 
-		$content_template->setVariable('EVAL_BUTTON_TEXT', $this->txt("sage_cell_evaluate"));
 
-		switch ($a_properties['sage_cell_show_code_editor'])
-		{
-			case 'edit':
-				$content_template->setVariable('TEMPLATE', 'sagecell.templates.minimal');
-				$content_template->setVariable('EDITOR_TYPE', 'codemirror');
-				$content_template->setVariable('HIDE', '"language", "permalink", "fullScreen", "sessionFiles", "done"');
-				break;
-			case 'show':
-				$content_template->setVariable('TEMPLATE', 'sagecell.templates.restricted');
-				$content_template->setVariable('EDITOR_TYPE', 'codemirror-readonly');
-				$content_template->setVariable('HIDE', '"language", "permalink", "fullScreen", "sessionFiles", "done"');
-				break;
-			case 'hide':
-				$content_template->setVariable('TEMPLATE', 'sagecell.templates.restricted');
-				$content_template->setVariable('EDITOR_TYPE', 'codemirror');
-				$content_template->setVariable('HIDE', '"language", "permalink", "fullScreen", "sessionFiles", "done", "editor"');
-				break;
-			default:
-				$content_template->setVariable('TEMPLATE', 'sagecell.templates.restricted');
-				$content_template->setVariable('HIDE', '"language", "permalink", "fullScreen", "sessionFiles", "done", "editor"');
-				break;
-		}
-
-		//Include extra info text
-		$content_template->setVariable('SAGE_TEXT', $a_properties["sage_cell_header_text"]);
-
-		// Code
-		$content_template->setVariable('CODE', $this->prepareCodePageOutput($a_properties['sage_cell_code']));
-
-		//Include extra info text
-		$content_template->setVariable('FOOTER_TEXT', $a_properties["sage_cell_footer_text"]);
-
+	/**
+	 * Get the HTML code for page view
+	 * @param $a_mode
+	 * @param $a_properties
+	 * @return string
+	 */
+	public function getPageViewHTML($a_mode, $a_properties)
+	{
 		if ($a_mode == "preview")
 		{
 			ilUtil::sendInfo($this->txt("info_debug_mode"));
-			$content_template->setVariable('DEBUG_MODE', ',mode: "debug"');
-		}else{
-			$content_template->setVariable('DEBUG_MODE', '');
 		}
 
-		//Add SageCell css files to page
-		$tpl->addCss(self::URL_PATH . 'templates/css/sagecell_embed.css' . self::URL_SUFFIX);
+		require_once(__DIR__ . '/class.ilPCSageCellCache.php');
+		$cache = new ilPCSageCellCache();
+		$content = serialize($a_properties);
+		$cache_id = md5($content);
+		$cache->storeEntry($cache_id, $content);
 
-		//Add SageCell javascript files to page
-		$tpl->addJavaScript($config->getSagemathServerAddress());
+		$url = $this->getPlugin()->getUrlPath() . 'content.php?mode='.$a_mode.'&cache_id='.$cache_id;
 
-		return $content_template->get();
+		/** @var ilTemplate $tpl */
+		$tpl = $this->getPlugin()->getTemplate("tpl.page_view.html");
+
+		$tpl->setVariable('HEADER_TEXT', $a_properties["sage_cell_header_text"]);
+		$tpl->setVariable('URL', $url);
+		$tpl->setVariable('FOOTER_TEXT', $a_properties["sage_cell_footer_text"]);
+
+		return $tpl->get();
 	}
 
 
+	/**
+	 * Get the HTML code for the page editor
+	 * @param $a_properties
+	 * @return string
+	 */
 	public function getPageEditorHTML($a_properties)
 	{
-		/** @var ilTemplate $content_template */
-		$content_template = $this->getPlugin()->getTemplate("tpl.page_editor.html");
-		$content_template->setVariable('SAGE_TEXT', html_entity_decode($a_properties["sage_cell_header_text"]));
-		$content_template->setVariable('CODE', $this->prepareCodePageOutput($a_properties['sage_cell_code']));
-		$content_template->setVariable('FOOTER_TEXT', html_entity_decode($a_properties["sage_cell_footer_text"]));
+		/** @var ilTemplate $tpl */
+		$tpl = $this->getPlugin()->getTemplate("tpl.page_editor.html");
+		$tpl->setVariable('HEADER_TEXT', html_entity_decode($a_properties["sage_cell_header_text"]));
+		$tpl->setVariable('CODE', $this->getPlugin()->prepareCodePageOutput($a_properties['sage_cell_code']));
+		$tpl->setVariable('FOOTER_TEXT', html_entity_decode($a_properties["sage_cell_footer_text"]));
 
-		return $content_template->get();
+		return $tpl->get();
 	}
 
 
@@ -262,12 +211,11 @@ class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 	 */
 	public function initForm($a_create = false)
 	{
-		global $ilCtrl, $lng, $tpl;
+		global $ilCtrl, $lng;
 
 		$this->prepareForm();
 		$prop = $this->getProperties();
 
-		include_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 		$form = new ilPropertyFormGUI();
 
 		//SageCell input
@@ -365,11 +313,11 @@ class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 		global $tpl;
 
 		$lngData = $this->getLanguageData();
-		$tpl->addCss(self::URL_PATH . 'js/codemirror/lib/codemirror.css' . self::URL_SUFFIX);
-		$tpl->addCss(self::URL_PATH . 'js/codemirror/theme/solarized.css' . self::URL_SUFFIX);
-		$tpl->addJavascript(self::URL_PATH . 'js/codemirror/lib/codemirror.js');
-		$tpl->addJavascript(self::URL_PATH . 'js/codemirror/mode/' . $lngData['cmLanguage'] . '/' . $lngData['cmLanguage'] . '.js');
-		$tpl->addJavascript(self::URL_PATH . 'js/helper.js');
+		$tpl->addCss($this->getPlugin()->getUrlPath() . 'js/codemirror/lib/codemirror.css' . $this->getPlugin()->getUrlSuffix());
+		$tpl->addCss($this->getPlugin()->getUrlPath() . 'js/codemirror/theme/solarized.css' . $this->getPlugin()->getUrlSuffix());
+		$tpl->addJavascript($this->getPlugin()->getUrlPath() . 'js/codemirror/lib/codemirror.js');
+		$tpl->addJavascript($this->getPlugin()->getUrlPath() . 'js/codemirror/mode/' . $lngData['cmLanguage'] . '/' . $lngData['cmLanguage'] . '.js');
+		$tpl->addJavascript($this->getPlugin()->getUrlPath() . 'js/helper.js');
 
 		$tpl->addOnLoadCode('initSolutionBox("' . $lngData['cmMode'] . '");');
 		$tpl->addOnLoadCode("hljs.configure({useBR: false});$('pre[class=" . $lngData['hljsLanguage'] . "][usebr=no]').each(function(i, block) { hljs.highlightBlock(block);});");
@@ -387,7 +335,7 @@ class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 		$item = new ilCustomInputGUI($this->plugin->txt($name), $name);
 		$item->setInfo($this->txt('form_code_editor_info'));
 		$tpl = $this->plugin->getTemplate('tpl.code_editor.html');
-		$tpl->setVariable("CONTENT", $this->prepareCodeFormOutput($value));
+		$tpl->setVariable("CONTENT", $this->getPlugin()->prepareCodeFormOutput($value));
 		$tpl->setVariable("NAME", $name);
 		$item->setHTML($tpl->get());
 		$form->addItem($item);
@@ -454,33 +402,5 @@ class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 	protected function txt($a_var)
 	{
 		return $this->getPlugin()->txt($a_var);
-	}
-
-	/**
-	 * Prepare the code for being shown in the properties form
-	 * @param string $a_code
-	 * @return string
-	 */
-	protected function prepareCodeFormOutput($a_code)
-	{
-		$a_code = str_replace('{', '&#123;', $a_code);
-		$a_code = str_replace('}', '&#125;', $a_code);
-
-		return $a_code;
-	}
-
-	/**
-	 * Prepare the code for being shown on the page presentation
-	 * @param string $a_code
-	 * @return string
-	 */
-	protected function prepareCodePageOutput($a_code)
-	{
-		//We have to replace carriage return ascii &#13; with \r in order to get a proper display of the code
-		$a_code = str_replace('&#13;', "\r", $a_code);
-		$a_code = str_replace('{', '&#123;', $a_code);
-		$a_code = str_replace('}', '&#125;', $a_code);
-
-		return $a_code;
 	}
 }

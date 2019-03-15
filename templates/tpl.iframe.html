@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script type="text/javascript" src="{SERVER_URL}"></script>
+    <link rel="stylesheet" type="text/css" href="{CSS_URL}" media="screen" />
+
+    <script type="text/javascript">
+        $(function () {
+            // Make *any* div with class 'compute' a Sage cell
+            sagecell.makeSagecell({
+                codeLocation: '#codeinput',
+                inputLocation: 'div.compute',
+                outputLocation: 'div.output',
+                evalButtonText: '{EVAL_BUTTON_TEXT}',
+                hide: [{HIDE}],
+                languages: ["{LANGUAGES}"],
+                autoeval: {AUTOEVAL},
+                editor: "{EDITOR_TYPE}"
+                {DEBUG_MODE}
+            });
+
+            var acResposiveIframe = $(window.frameElement);
+            var acIframeContent = $(".acIframeContent");
+            var acIframeContentLastHeight = acIframeContent.height();
+
+            $(window).on('load resize', adjustIframe);
+            checkForIframeChanges();
+            adjustIframe();
+
+            function checkForIframeChanges()
+            {
+                if (acIframeContent.height() != acIframeContentLastHeight)
+                {
+                    adjustIframe();
+                    acIframeContentLastHeight = acIframeContent.height();
+                }
+                setTimeout(checkForIframeChanges, 100);
+            }
+
+            function adjustIframe() {
+
+                $(parent.document.getElementById("responsive-iframe")).css("height", $("html").css("height"));
+                //acResposiveIframe.height(acIframeContent.height());
+            }
+
+        });
+    </script>
+
+</head>
+<body>
+    <div class="acIframeContent">
+        <div readonly="" class="compute">
+            <script type="text/x-sage"></script>
+        </div>
+
+        <script type="text/x-sage" id="codeinput">{CODE}</script>
+
+        <div class="output">
+        </div>
+    </div>
+</body>
