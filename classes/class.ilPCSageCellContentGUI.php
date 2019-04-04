@@ -26,6 +26,9 @@ class ilPCSageCellContentGUI
 	/** @var string  */
 	protected $cache_id;
 
+	/** @var integer */
+	protected $cell_id;
+
 	/** @var array Properties of the cell */
 	protected $properties;
 
@@ -45,6 +48,7 @@ class ilPCSageCellContentGUI
 
 		$this->mode = $_GET['mode'];
 		$this->cache_id = $_GET['cache_id'];
+		$this->cell_id = (int) $_GET['cell_id'];
 
 		$this->properties = unserialize($this->cache->getEntry($this->cache_id));
 	}
@@ -62,6 +66,9 @@ class ilPCSageCellContentGUI
 
 		//Add SageCell css files to page (path is relative to content.php)
 		$tpl->setVariable('CSS_URL', 'templates/css/sagecell_embed.css' . $this->plugin->getUrlSuffix());
+
+		// the cell_id is used to adjust the parent iframe
+		$tpl->setVariable('CELL_ID', $this->cell_id);
 
 		// Code
 		$tpl->setVariable('CODE', $this->plugin->prepareCodePageOutput($this->properties['sage_cell_code']));

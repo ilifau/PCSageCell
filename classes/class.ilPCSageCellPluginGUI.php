@@ -173,14 +173,16 @@ class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 		$content = serialize($a_properties);
 		$cache_id = md5($content);
 		$cache->storeEntry($cache_id, $content);
+		$cell_id = rand(1000, 9999);
 
-		$url = $this->getPlugin()->getUrlPath() . 'content.php?mode='.$a_mode.'&cache_id='.$cache_id;
+		$url = $this->getPlugin()->getUrlPath() . 'content.php?mode='.$a_mode.'&cache_id='.$cache_id.'&cell_id='.$cell_id;
 
 		/** @var ilTemplate $tpl */
 		$tpl = $this->getPlugin()->getTemplate("tpl.page_view.html");
 
 		$tpl->setVariable('HEADER_TEXT', $a_properties["sage_cell_header_text"]);
 		$tpl->setVariable('URL', $url);
+		$tpl->setVariable('CELL_ID', $cell_id);
 		$tpl->setVariable('FOOTER_TEXT', $a_properties["sage_cell_footer_text"]);
 
 		return $tpl->get();
