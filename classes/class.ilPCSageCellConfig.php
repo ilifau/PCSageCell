@@ -51,7 +51,7 @@ class ilPCSageCellConfig
 		}
 
 		//Get all config data from DB
-		$query = 'SELECT * FROM pcsage_config';
+		$query = 'SELECT * FROM copg_pgcp_pcsage_config';
 		$result = $db->query($query);
 		while ($row = $db->fetchAssoc($result))
 		{
@@ -89,10 +89,10 @@ class ilPCSageCellConfig
 		}
 
 		$field_data_sagemath_server_address = array("value" => array("clob", $this->getSagemathServerAddress()));
-		$db->update("pcsage_config", $field_data_sagemath_server_address, array("parameter_name" => array("text", "sagemath_server_address")));
+		$db->update("copg_pgcp_pcsage_config", $field_data_sagemath_server_address, array("parameter_name" => array("text", "sagemath_server_address")));
 
 		$field_data_force_evaluate_button = array("value" => array("clob", (string)$this->getForceEvaluateButton()));
-		$db->update("pcsage_config", $field_data_force_evaluate_button, array("parameter_name" => array("text", "force_evaluate_button")));
+		$db->update("copg_pgcp_pcsage_config", $field_data_force_evaluate_button, array("parameter_name" => array("text", "force_evaluate_button")));
 
 		return TRUE;
 	}
