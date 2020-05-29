@@ -82,7 +82,7 @@ class ilPCSageCellPluginGUI extends ilPageComponentPluginGUI
 			if ($this->updateElement($existing_properties))
 			{
 				ilUtil::sendSuccess($lng->txt("msg_obj_modified"), true);
-				$this->edit();
+				$ilCtrl->redirect($this, 'edit');
 			}
 		}
 		$form->setValuesByPost();
