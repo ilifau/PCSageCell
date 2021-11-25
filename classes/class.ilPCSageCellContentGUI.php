@@ -61,6 +61,9 @@ class ilPCSageCellContentGUI
 		/** @var ilTemplate $tpl */
 		$tpl = $this->plugin->getTemplate("tpl.iframe.html");
 
+        // Add JQuery
+        $tpl->setVariable('JQUERY_URL', PCSAGE_BACKSTEPS . iljQueryUtil::getLocaljQueryPath());
+
 		//Add SageCell javascript files to page
 		$tpl->setVariable('SERVER_URL', $this->config->getSagemathServerAddress());
 
